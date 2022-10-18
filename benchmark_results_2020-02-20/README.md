@@ -1,4 +1,5 @@
 # Benchmark Results - 20 Feb 2020
+These are the original benchmarks that nxrighthere obtained.
 
 ## Software versions and environment
 Burst 1.2.3<br/>

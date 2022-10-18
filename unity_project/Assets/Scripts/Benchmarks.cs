@@ -1,6 +1,9 @@
-using System;
+#define NATIVE_LIB_IS_GCC
+
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -13,9 +16,59 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
+// ReSharper disable once PartialTypeWithSinglePart
 public partial class Benchmarks : SystemBase {
-	// Fibonacci
+	// Options
+	
+#if NATIVE_LIB_IS_GCC
+	private const string nativeLibraryPrefixString = "GCC";
+	private const string nativeLibrary = "benchmarks-gcc";
+#else
+	private const string nativeLibraryPrefixString = "Clang";
+	private const string nativeLibrary = "benchmarks-clang";
+#endif
 
+#if ENABLE_MONO
+	private const string scriptingBackend = "Mono JIT";
+#elif ENABLE_IL2CPP
+	private const string scriptingBackend = "IL2CPP";
+#else
+	private const string scriptingBackend = "Unknown script backend";
+#endif
+
+	private const bool
+		burstEnabled = true,
+		nativeLibraryEnabled = true,
+		scriptBackendEnabled = true;
+
+	private const bool
+		fibonacciEnabled = true,
+		mandelbrotEnabled = true,
+		nbodyEnabled = true,
+		sieveOfEratosthenesEnabled = true,
+		pixarRaytracerEnabled = true,
+		firefliesFlockingEnabled = true,
+		polynomialsEnabled = true,
+		particleKinematicsEnabled = true,
+		arcfourEnabled = true,
+		seahashEnabled = true,
+		radixEnabled = true;
+
+	private const uint
+		fibonacciNumber = 46,
+		mandelbrotIterations = 8,
+		nbodyAdvancements = 100000000,
+		sieveOfEratosthenesIterations = 1000000,
+		pixarRaytracerSamples = 16,
+		firefliesFlockingLifetime = 1000,
+		polynomialsIterations = 10000000,
+		particleKinematicsIterations = 10000000,
+		arcfourIterations = 10000000,
+		seahashIterations = 1000000,
+		radixIterations = 1000000;
+
+
+	// Fibonacci
 	[BurstCompile(CompileSynchronously = true)]
 	public struct FibonacciBurst : IJob {
 		public uint number;
@@ -1264,39 +1317,7 @@ public partial class Benchmarks : SystemBase {
 	protected override void OnCreate() {
 		var stopwatch = new System.Diagnostics.Stopwatch();
 		long time = 0;
-
-		// Options
-
-		bool
-			burstEnabled = true,
-			gccEnabled = true,
-			monoEnabled = true;
-
-		bool
-			fibonacciEnabled = true,
-			mandelbrotEnabled = true,
-			nbodyEnabled = true,
-			sieveOfEratosthenesEnabled = true,
-			pixarRaytracerEnabled = true,
-			firefliesFlockingEnabled = true,
-			polynomialsEnabled = true,
-			particleKinematicsEnabled = true,
-			arcfourEnabled = true,
-			seahashEnabled = true,
-			radixEnabled = true;
-
-		uint
-			fibonacciNumber = 46,
-			mandelbrotIterations = 8,
-			nbodyAdvancements = 100000000,
-			sieveOfEratosthenesIterations = 1000000,
-			pixarRaytracerSamples = 16,
-			firefliesFlockingLifetime = 1000,
-			polynomialsIterations = 10000000,
-			particleKinematicsIterations = 10000000,
-			arcfourIterations = 10000000,
-			seahashIterations = 1000000,
-			radixIterations = 1000000;
+		StringBuilder stringBuilder = new();
 
 		// Benchmarks
 
@@ -1313,10 +1334,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Fibonacci: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Fibonacci: {time} ticks");
 		}
 
-		if (gccEnabled && fibonacciEnabled) {
+		if (nativeLibraryEnabled && fibonacciEnabled) {
 			var benchmark = new FibonacciGCC {
 				number = fibonacciNumber
 			};
@@ -1329,10 +1350,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Fibonacci: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Fibonacci: {time} ticks");
 		}
 
-		if (monoEnabled && fibonacciEnabled) {
+		if (scriptBackendEnabled && fibonacciEnabled) {
 			var benchmark = new FibonacciBurst {
 				number = fibonacciNumber
 			};
@@ -1345,7 +1366,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Fibonacci: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Fibonacci: {time} ticks");
 		}
 
 		if (burstEnabled && mandelbrotEnabled) {
@@ -1363,10 +1384,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Mandelbrot: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Mandelbrot: {time} ticks");
 		}
 
-		if (gccEnabled && mandelbrotEnabled) {
+		if (nativeLibraryEnabled && mandelbrotEnabled) {
 			var benchmark = new MandelbrotGCC {
 				width = 1920,
 				height = 1080,
@@ -1381,10 +1402,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Mandelbrot: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Mandelbrot: {time} ticks");
 		}
 
-		if (monoEnabled && mandelbrotEnabled) {
+		if (scriptBackendEnabled && mandelbrotEnabled) {
 			var benchmark = new MandelbrotBurst {
 				width = 1920,
 				height = 1080,
@@ -1399,7 +1420,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Mandelbrot: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Mandelbrot: {time} ticks");
 		}
 
 		if (burstEnabled && nbodyEnabled) {
@@ -1415,10 +1436,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) NBody: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) NBody: {time} ticks");
 		}
 
-		if (gccEnabled && nbodyEnabled) {
+		if (nativeLibraryEnabled && nbodyEnabled) {
 			var benchmark = new NBodyGCC {
 				advancements = nbodyAdvancements
 			};
@@ -1431,10 +1452,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) NBody: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) NBody: {time} ticks");
 		}
 
-		if (monoEnabled && nbodyEnabled) {
+		if (scriptBackendEnabled && nbodyEnabled) {
 			var benchmark = new NBodyBurst {
 				advancements = nbodyAdvancements
 			};
@@ -1447,7 +1468,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) NBody: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) NBody: {time} ticks");
 		}
 
 		if (burstEnabled && sieveOfEratosthenesEnabled) {
@@ -1463,10 +1484,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Sieve of Eratosthenes: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Sieve of Eratosthenes: {time} ticks");
 		}
 
-		if (gccEnabled && sieveOfEratosthenesEnabled) {
+		if (nativeLibraryEnabled && sieveOfEratosthenesEnabled) {
 			var benchmark = new SieveOfEratosthenesGCC {
 				iterations = sieveOfEratosthenesIterations
 			};
@@ -1479,10 +1500,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Sieve of Eratosthenes: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Sieve of Eratosthenes: {time} ticks");
 		}
 
-		if (monoEnabled && sieveOfEratosthenesEnabled) {
+		if (scriptBackendEnabled && sieveOfEratosthenesEnabled) {
 			var benchmark = new SieveOfEratosthenesBurst {
 				iterations = sieveOfEratosthenesIterations
 			};
@@ -1495,7 +1516,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Sieve of Eratosthenes: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Sieve of Eratosthenes: {time} ticks");
 		}
 
 		if (burstEnabled && pixarRaytracerEnabled) {
@@ -1513,10 +1534,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Pixar Raytracer: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Pixar Raytracer: {time} ticks");
 		}
 
-		if (gccEnabled && pixarRaytracerEnabled) {
+		if (nativeLibraryEnabled && pixarRaytracerEnabled) {
 			var benchmark = new PixarRaytracerGCC {
 				width = 720,
 				height = 480,
@@ -1531,10 +1552,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Pixar Raytracer: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Pixar Raytracer: {time} ticks");
 		}
 
-		if (monoEnabled && pixarRaytracerEnabled) {
+		if (scriptBackendEnabled && pixarRaytracerEnabled) {
 			var benchmark = new PixarRaytracerBurst {
 				width = 720,
 				height = 480,
@@ -1549,7 +1570,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Pixar Raytracer: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Pixar Raytracer: {time} ticks");
 		}
 
 		if (burstEnabled && firefliesFlockingEnabled) {
@@ -1566,10 +1587,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Fireflies Flocking: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Fireflies Flocking: {time} ticks");
 		}
 
-		if (gccEnabled && firefliesFlockingEnabled) {
+		if (nativeLibraryEnabled && firefliesFlockingEnabled) {
 			var benchmark = new FirefliesFlockingGCC {
 				boids = 1000,
 				lifetime = firefliesFlockingLifetime
@@ -1583,10 +1604,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Fireflies Flocking: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Fireflies Flocking: {time} ticks");
 		}
 
-		if (monoEnabled && firefliesFlockingEnabled) {
+		if (scriptBackendEnabled && firefliesFlockingEnabled) {
 			var benchmark = new FirefliesFlockingBurst {
 				boids = 1000,
 				lifetime = firefliesFlockingLifetime
@@ -1600,7 +1621,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Fireflies Flocking: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Fireflies Flocking: {time} ticks");
 		}
 
 		if (burstEnabled && polynomialsEnabled) {
@@ -1616,10 +1637,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Polynomials: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Polynomials: {time} ticks");
 		}
 
-		if (gccEnabled && polynomialsEnabled) {
+		if (nativeLibraryEnabled && polynomialsEnabled) {
 			var benchmark = new PolynomialsGCC {
 				iterations = polynomialsIterations
 			};
@@ -1632,10 +1653,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Polynomials: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Polynomials: {time} ticks");
 		}
 
-		if (monoEnabled && polynomialsEnabled) {
+		if (scriptBackendEnabled && polynomialsEnabled) {
 			var benchmark = new PolynomialsBurst {
 				iterations = polynomialsIterations
 			};
@@ -1648,7 +1669,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Polynomials: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Polynomials: {time} ticks");
 		}
 
 		if (burstEnabled && particleKinematicsEnabled) {
@@ -1665,10 +1686,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Particle Kinematics: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Particle Kinematics: {time} ticks");
 		}
 
-		if (gccEnabled && particleKinematicsEnabled) {
+		if (nativeLibraryEnabled && particleKinematicsEnabled) {
 			var benchmark = new ParticleKinematicsGCC {
 				quantity = 1000,
 				iterations = particleKinematicsIterations
@@ -1682,10 +1703,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Particle Kinematics: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Particle Kinematics: {time} ticks");
 		}
 
-		if (monoEnabled && particleKinematicsEnabled) {
+		if (scriptBackendEnabled && particleKinematicsEnabled) {
 			var benchmark = new ParticleKinematicsBurst {
 				quantity = 1000,
 				iterations = particleKinematicsIterations
@@ -1699,7 +1720,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Particle Kinematics: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Particle Kinematics: {time} ticks");
 		}
 
 		if (burstEnabled && arcfourEnabled) {
@@ -1715,10 +1736,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Arcfour: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Arcfour: {time} ticks");
 		}
 
-		if (gccEnabled && arcfourEnabled) {
+		if (nativeLibraryEnabled && arcfourEnabled) {
 			var benchmark = new ArcfourGCC {
 				iterations = arcfourIterations
 			};
@@ -1731,10 +1752,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Arcfour: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Arcfour: {time} ticks");
 		}
 
-		if (monoEnabled && arcfourEnabled) {
+		if (scriptBackendEnabled && arcfourEnabled) {
 			var benchmark = new ArcfourBurst {
 				iterations = arcfourIterations
 			};
@@ -1747,7 +1768,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Arcfour: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Arcfour: {time} ticks");
 		}
 
 		if (burstEnabled && seahashEnabled) {
@@ -1763,10 +1784,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Seahash: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Seahash: {time} ticks");
 		}
 
-		if (gccEnabled && seahashEnabled) {
+		if (nativeLibraryEnabled && seahashEnabled) {
 			var benchmark = new SeahashGCC {
 				iterations = seahashIterations
 			};
@@ -1779,10 +1800,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Seahash: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Seahash: {time} ticks");
 		}
 
-		if (monoEnabled && seahashEnabled) {
+		if (scriptBackendEnabled && seahashEnabled) {
 			var benchmark = new SeahashBurst {
 				iterations = seahashIterations
 			};
@@ -1795,7 +1816,7 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Seahash: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Seahash: {time} ticks");
 		}
 
 		if (burstEnabled && radixEnabled) {
@@ -1811,10 +1832,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Burst) Radix: " + time + " ticks");
+			stringBuilder.AppendLine($"(Burst) Radix: {time} ticks");
 		}
 
-		if (gccEnabled && radixEnabled) {
+		if (nativeLibraryEnabled && radixEnabled) {
 			var benchmark = new RadixGCC {
 				iterations = radixIterations
 			};
@@ -1827,10 +1848,10 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(GCC) Radix: " + time + " ticks");
+			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Radix: {time} ticks");
 		}
 
-		if (monoEnabled && radixEnabled) {
+		if (scriptBackendEnabled && radixEnabled) {
 			var benchmark = new RadixBurst {
 				iterations = radixIterations
 			};
@@ -1843,9 +1864,11 @@ public partial class Benchmarks : SystemBase {
 
 			time = stopwatch.ElapsedTicks;
 
-			Debug.Log("(Mono JIT) Radix: " + time + " ticks");
+			stringBuilder.AppendLine($"({scriptingBackend}) Radix: {time} ticks");
 		}
 		
+		stringBuilder.AppendLine();
+		File.WriteAllText($"{Application.persistentDataPath}/Benchmark_results.txt", stringBuilder.ToString());
 		Application.Quit();
 
 #if UNITY_EDITOR
@@ -1855,8 +1878,6 @@ public partial class Benchmarks : SystemBase {
 
 	protected override void OnUpdate() {
 	}
-
-	private const string nativeLibrary = "benchmarks";
 
 	[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 	private static extern uint benchmark_fibonacci(uint number);
