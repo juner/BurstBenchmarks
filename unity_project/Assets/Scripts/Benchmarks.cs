@@ -9,7 +9,11 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class Benchmarks : JobComponentSystem {
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+public partial class Benchmarks : SystemBase {
 	// Fibonacci
 
 	[BurstCompile(CompileSynchronously = true)]
@@ -1841,10 +1845,15 @@ public class Benchmarks : JobComponentSystem {
 
 			Debug.Log("(Mono JIT) Radix: " + time + " ticks");
 		}
+		
+		Application.Quit();
+
+#if UNITY_EDITOR
+		EditorApplication.ExitPlaymode();
+#endif
 	}
 
-	protected override JobHandle OnUpdate(JobHandle inputDependencies) {
-		return inputDependencies;
+	protected override void OnUpdate() {
 	}
 
 	private const string nativeLibrary = "benchmarks";

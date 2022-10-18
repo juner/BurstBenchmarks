@@ -12,25 +12,25 @@ C code compiled with all possible optimizations using `-DNDEBUG -Ofast -march=na
 ## Integer math
 
 <p align="center"> 
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Fibonacci.png" alt="Fibonacci">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Sieve_of_Eratosthenes.png" alt="Sieve of Eratosthenes">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Arcfour.png" alt="Arcfour">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Seahash.png" alt="Seahash">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Radix.png" alt="Radix">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Fibonacci.png" alt="Fibonacci">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Sieve_of_Eratosthenes.png" alt="Sieve of Eratosthenes">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Arcfour.png" alt="Arcfour">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Seahash.png" alt="Seahash">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Radix.png" alt="Radix">
 </p>
 
 ## Single-precision math
 
 <p align="center"> 
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Mandelbrot.png" alt="Mandelbrot">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Pixar_Raytracer.png" alt="Pixar Raytracer">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Fireflies_Flocking.png" alt="Fireflies Flocking">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Polynomials.png" alt="Polynomials">
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/Particle_Kinematics.png" alt="Particle Kinematics">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Mandelbrot.png" alt="Mandelbrot">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Pixar_Raytracer.png" alt="Pixar Raytracer">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Fireflies_Flocking.png" alt="Fireflies Flocking">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Polynomials.png" alt="Polynomials">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/Particle_Kinematics.png" alt="Particle Kinematics">
 </p>
 
 ## Double-precision math
 
 <p align="center"> 
-  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_20-02-2020/img/NBody.png" alt="NBody">
+  <img src="https://raw.githubusercontent.com/XJDHDR/BurstBenchmarks/master/benchmark_results_2020-02-20/img/NBody.png" alt="NBody">
 </p>
