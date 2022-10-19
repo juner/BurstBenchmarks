@@ -1,8 +1,46 @@
-using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 public class Benchmarks {
+	// Options
+
+	private const string 
+		nativeLibrary = "benchmarks-gcc",
+		nativeLibNamePrefix = "GCC";
+		//nativeLibrary = "benchmarks-clang",
+		//nativeLibNamePrefix = "Clang";
+
+	private const bool
+		netRyuJitEnabled = true,
+		nativeLibEnabled = true;
+
+	private const bool
+		fibonacciEnabled = true,
+		mandelbrotEnabled = true,
+		nbodyEnabled = true,
+		sieveOfEratosthenesEnabled = true,
+		pixarRaytracerEnabled = true,
+		firefliesFlockingEnabled = true,
+		polynomialsEnabled = true,
+		particleKinematicsEnabled = true,
+		arcfourEnabled = true,
+		seahashEnabled = true,
+		radixEnabled = true;
+
+	private const uint
+		fibonacciNumber = 46,
+		mandelbrotIterations = 8,
+		nbodyAdvancements = 100000000,
+		sieveOfEratosthenesIterations = 1000000,
+		pixarRaytracerSamples = 16,
+		firefliesFlockingLifetime = 1000,
+		polynomialsIterations = 10000000,
+		particleKinematicsIterations = 10000000,
+		arcfourIterations = 10000000,
+		seahashIterations = 1000000,
+		radixIterations = 1000000;
+
+	
 	private static unsafe void* Malloc(int size, int alignment, out void* pointer) {
 		IntPtr aligned = IntPtr.Zero;
 
@@ -1254,409 +1292,402 @@ public class Benchmarks {
 	private static void Main() {
 		var stopwatch = new System.Diagnostics.Stopwatch();
 		long time = 0;
+		using (StreamWriter benchmarkResultsStreamWriter = new($"{Directory.GetCurrentDirectory()}/Results.txt", true))
+		{
+			benchmarkResultsStreamWriter.WriteLine("\r\nBenchmark Results:");
 
-		// Options
+			// Benchmarks
 
-		bool
-			netEnabled = true,
-			gccEnabled = false;
+			if (netRyuJitEnabled && fibonacciEnabled) {
+				var benchmark = new FibonacciNET {
+					number = fibonacciNumber
+				};
 
-		bool
-			fibonacciEnabled = true,
-			mandelbrotEnabled = true,
-			nbodyEnabled = true,
-			sieveOfEratosthenesEnabled = true,
-			pixarRaytracerEnabled = true,
-			firefliesFlockingEnabled = true,
-			polynomialsEnabled = true,
-			particleKinematicsEnabled = true,
-			arcfourEnabled = true,
-			seahashEnabled = true,
-			radixEnabled = true;
+				stopwatch.Stop();
+				benchmark.Run();
 
-		uint
-			fibonacciNumber = 46,
-			mandelbrotIterations = 8,
-			nbodyAdvancements = 100000000,
-			sieveOfEratosthenesIterations = 1000000,
-			pixarRaytracerSamples = 16,
-			firefliesFlockingLifetime = 1000,
-			polynomialsIterations = 10000000,
-			particleKinematicsIterations = 10000000,
-			arcfourIterations = 10000000,
-			seahashIterations = 1000000,
-			radixIterations = 1000000;
+				stopwatch.Restart();
+				benchmark.Run();
 
-		// Benchmarks
+				time = stopwatch.ElapsedTicks;
 
-		if (netEnabled && fibonacciEnabled) {
-			var benchmark = new FibonacciNET {
-				number = fibonacciNumber
-			};
+				Console.WriteLine($"(RyuJIT) Fibonacci: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Fibonacci: {time} ticks");
+			}
 
-			stopwatch.Stop();
-			benchmark.Run();
+			if (nativeLibEnabled && fibonacciEnabled) {
+				var benchmark = new FibonacciGCC {
+					number = fibonacciNumber
+				};
 
-			stopwatch.Restart();
-			benchmark.Run();
+				stopwatch.Stop();
+				benchmark.Run();
 
-			time = stopwatch.ElapsedTicks;
+				stopwatch.Restart();
+				benchmark.Run();
 
-			Console.WriteLine("(RyuJIT) Fibonacci: " + time + " ticks");
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Fibonacci: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Fibonacci: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && mandelbrotEnabled) {
+				var benchmark = new MandelbrotNET {
+					width = 1920,
+					height = 1080,
+					iterations = mandelbrotIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Mandelbrot: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Mandelbrot: {time} ticks");
+			}
+
+			if (nativeLibEnabled && mandelbrotEnabled) {
+				var benchmark = new MandelbrotGCC {
+					width = 1920,
+					height = 1080,
+					iterations = mandelbrotIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Mandelbrot: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Mandelbrot: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && nbodyEnabled) {
+				var benchmark = new NBodyNET {
+					advancements = nbodyAdvancements
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) NBody: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) NBody: {time} ticks");
+			}
+
+			if (nativeLibEnabled && nbodyEnabled) {
+				var benchmark = new NBodyGCC {
+					advancements = nbodyAdvancements
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) NBody: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) NBody: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && sieveOfEratosthenesEnabled) {
+				var benchmark = new SieveOfEratosthenesNET {
+					iterations = sieveOfEratosthenesIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Sieve of Eratosthenes: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Sieve of Eratosthenes: {time} ticks");
+			}
+
+			if (nativeLibEnabled && sieveOfEratosthenesEnabled) {
+				var benchmark = new SieveOfEratosthenesGCC {
+					iterations = sieveOfEratosthenesIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Sieve of Eratosthenes: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Sieve of Eratosthenes: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && pixarRaytracerEnabled) {
+				var benchmark = new PixarRaytracerNET {
+					width = 720,
+					height = 480,
+					samples = pixarRaytracerSamples
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Pixar Raytracer: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Pixar Raytracer: {time} ticks");
+			}
+
+			if (nativeLibEnabled && pixarRaytracerEnabled) {
+				var benchmark = new PixarRaytracerGCC {
+					width = 720,
+					height = 480,
+					samples = pixarRaytracerSamples
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Pixar Raytracer: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Pixar Raytracer: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && firefliesFlockingEnabled) {
+				var benchmark = new FirefliesFlockingNET {
+					boids = 1000,
+					lifetime = firefliesFlockingLifetime
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Fireflies Flocking: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Fireflies Flocking: {time} ticks");
+			}
+
+			if (nativeLibEnabled && firefliesFlockingEnabled) {
+				var benchmark = new FirefliesFlockingGCC {
+					boids = 1000,
+					lifetime = firefliesFlockingLifetime
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Fireflies Flocking: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Fireflies Flocking: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && polynomialsEnabled) {
+				var benchmark = new PolynomialsNET {
+					iterations = polynomialsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Polynomials: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Polynomials: {time} ticks");
+			}
+
+			if (nativeLibEnabled && polynomialsEnabled) {
+				var benchmark = new PolynomialsGCC {
+					iterations = polynomialsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Polynomials: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Polynomials: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && particleKinematicsEnabled) {
+				var benchmark = new ParticleKinematicsNET {
+					quantity = 1000,
+					iterations = particleKinematicsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Particle Kinematics: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Particle Kinematics: {time} ticks");
+			}
+
+			if (nativeLibEnabled && particleKinematicsEnabled) {
+				var benchmark = new ParticleKinematicsGCC {
+					quantity = 1000,
+					iterations = particleKinematicsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Particle Kinematics: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Particle Kinematics: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && arcfourEnabled) {
+				var benchmark = new ArcfourNET {
+					iterations = arcfourIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Arcfour: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Arcfour: {time} ticks");
+			}
+
+			if (nativeLibEnabled && arcfourEnabled) {
+				var benchmark = new ArcfourGCC {
+					iterations = arcfourIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Arcfour: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Arcfour: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && seahashEnabled) {
+				var benchmark = new SeahashNET {
+					iterations = seahashIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Seahash: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Seahash: {time} ticks");
+			}
+
+			if (nativeLibEnabled && seahashEnabled) {
+				var benchmark = new SeahashGCC {
+					iterations = seahashIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Seahash: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Seahash: {time} ticks");
+			}
+
+			if (netRyuJitEnabled && radixEnabled) {
+				var benchmark = new RadixNET {
+					iterations = radixIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"(RyuJIT) Radix: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"(RyuJIT) Radix: {time} ticks");
+			}
+
+			if (nativeLibEnabled && radixEnabled) {
+				var benchmark = new RadixGCC {
+					iterations = radixIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				Console.WriteLine($"({nativeLibNamePrefix}) Radix: {time} ticks");
+				benchmarkResultsStreamWriter.WriteLine($"({nativeLibNamePrefix}) Radix: {time} ticks");
+			}
+
+			benchmarkResultsStreamWriter.Close();
 		}
-
-		if (gccEnabled && fibonacciEnabled) {
-			var benchmark = new FibonacciGCC {
-				number = fibonacciNumber
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Fibonacci: " + time + " ticks");
-		}
-
-		if (netEnabled && mandelbrotEnabled) {
-			var benchmark = new MandelbrotNET {
-				width = 1920,
-				height = 1080,
-				iterations = mandelbrotIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Mandelbrot: " + time + " ticks");
-		}
-
-		if (gccEnabled && mandelbrotEnabled) {
-			var benchmark = new MandelbrotGCC {
-				width = 1920,
-				height = 1080,
-				iterations = mandelbrotIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Mandelbrot: " + time + " ticks");
-		}
-
-		if (netEnabled && nbodyEnabled) {
-			var benchmark = new NBodyNET {
-				advancements = nbodyAdvancements
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) NBody: " + time + " ticks");
-		}
-
-		if (gccEnabled && nbodyEnabled) {
-			var benchmark = new NBodyGCC {
-				advancements = nbodyAdvancements
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) NBody: " + time + " ticks");
-		}
-
-		if (netEnabled && sieveOfEratosthenesEnabled) {
-			var benchmark = new SieveOfEratosthenesNET {
-				iterations = sieveOfEratosthenesIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Sieve of Eratosthenes: " + time + " ticks");
-		}
-
-		if (gccEnabled && sieveOfEratosthenesEnabled) {
-			var benchmark = new SieveOfEratosthenesGCC {
-				iterations = sieveOfEratosthenesIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Sieve of Eratosthenes: " + time + " ticks");
-		}
-
-		if (netEnabled && pixarRaytracerEnabled) {
-			var benchmark = new PixarRaytracerNET {
-				width = 720,
-				height = 480,
-				samples = pixarRaytracerSamples
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Pixar Raytracer: " + time + " ticks");
-		}
-
-		if (gccEnabled && pixarRaytracerEnabled) {
-			var benchmark = new PixarRaytracerGCC {
-				width = 720,
-				height = 480,
-				samples = pixarRaytracerSamples
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Pixar Raytracer: " + time + " ticks");
-		}
-
-		if (netEnabled && firefliesFlockingEnabled) {
-			var benchmark = new FirefliesFlockingNET {
-				boids = 1000,
-				lifetime = firefliesFlockingLifetime
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Fireflies Flocking: " + time + " ticks");
-		}
-
-		if (gccEnabled && firefliesFlockingEnabled) {
-			var benchmark = new FirefliesFlockingGCC {
-				boids = 1000,
-				lifetime = firefliesFlockingLifetime
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Fireflies Flocking: " + time + " ticks");
-		}
-
-		if (netEnabled && polynomialsEnabled) {
-			var benchmark = new PolynomialsNET {
-				iterations = polynomialsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Polynomials: " + time + " ticks");
-		}
-
-		if (gccEnabled && polynomialsEnabled) {
-			var benchmark = new PolynomialsGCC {
-				iterations = polynomialsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Polynomials: " + time + " ticks");
-		}
-
-		if (netEnabled && particleKinematicsEnabled) {
-			var benchmark = new ParticleKinematicsNET {
-				quantity = 1000,
-				iterations = particleKinematicsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Particle Kinematics: " + time + " ticks");
-		}
-
-		if (gccEnabled && particleKinematicsEnabled) {
-			var benchmark = new ParticleKinematicsGCC {
-				quantity = 1000,
-				iterations = particleKinematicsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Particle Kinematics: " + time + " ticks");
-		}
-
-		if (netEnabled && arcfourEnabled) {
-			var benchmark = new ArcfourNET {
-				iterations = arcfourIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Arcfour: " + time + " ticks");
-		}
-
-		if (gccEnabled && arcfourEnabled) {
-			var benchmark = new ArcfourGCC {
-				iterations = arcfourIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Arcfour: " + time + " ticks");
-		}
-
-		if (netEnabled && seahashEnabled) {
-			var benchmark = new SeahashNET {
-				iterations = seahashIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Seahash: " + time + " ticks");
-		}
-
-		if (gccEnabled && seahashEnabled) {
-			var benchmark = new SeahashGCC {
-				iterations = seahashIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Seahash: " + time + " ticks");
-		}
-
-		if (netEnabled && radixEnabled) {
-			var benchmark = new RadixNET {
-				iterations = radixIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(RyuJIT) Radix: " + time + " ticks");
-		}
-
-		if (gccEnabled && radixEnabled) {
-			var benchmark = new RadixGCC {
-				iterations = radixIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			Console.WriteLine("(GCC) Radix: " + time + " ticks");
-		}
-
 		Environment.Exit(0);
 	}
-
-	private const string nativeLibrary = "benchmarks";
 
 	[DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
 	private static extern uint benchmark_fibonacci(uint number);

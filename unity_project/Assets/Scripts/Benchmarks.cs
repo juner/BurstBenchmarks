@@ -1,9 +1,9 @@
 #define NATIVE_LIB_IS_GCC
+#define SCRIPTING_BACKEND_IS_MONO	// ENABLE_MONO and ENABLE_IL2CPP don't seem to work. The former is always true and latter always false.
 
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -28,12 +28,10 @@ public partial class Benchmarks : SystemBase {
 	private const string nativeLibrary = "benchmarks-clang";
 #endif
 
-#if ENABLE_MONO
+#if SCRIPTING_BACKEND_IS_MONO
 	private const string scriptingBackend = "Mono JIT";
-#elif ENABLE_IL2CPP
-	private const string scriptingBackend = "IL2CPP";
 #else
-	private const string scriptingBackend = "Unknown script backend";
+	private const string scriptingBackend = "IL2CPP";
 #endif
 
 	private const bool
@@ -1317,558 +1315,558 @@ public partial class Benchmarks : SystemBase {
 	protected override void OnCreate() {
 		var stopwatch = new System.Diagnostics.Stopwatch();
 		long time = 0;
-		StringBuilder stringBuilder = new();
+		using (StreamWriter benchmarkResultStreamWriter = new($"{Application.persistentDataPath}/Benchmark_results_{nativeLibraryPrefixString}.txt", true))
+		{
+			// Benchmarks
 
-		// Benchmarks
+			if (burstEnabled && fibonacciEnabled) {
+				var benchmark = new FibonacciBurst {
+					number = fibonacciNumber
+				};
 
-		if (burstEnabled && fibonacciEnabled) {
-			var benchmark = new FibonacciBurst {
-				number = fibonacciNumber
-			};
+				stopwatch.Stop();
+				benchmark.Run();
 
-			stopwatch.Stop();
-			benchmark.Run();
+				stopwatch.Restart();
+				benchmark.Run();
 
-			stopwatch.Restart();
-			benchmark.Run();
+				time = stopwatch.ElapsedTicks;
 
-			time = stopwatch.ElapsedTicks;
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Fibonacci: {time} ticks");
+			}
 
-			stringBuilder.AppendLine($"(Burst) Fibonacci: {time} ticks");
+			if (nativeLibraryEnabled && fibonacciEnabled) {
+				var benchmark = new FibonacciGCC {
+					number = fibonacciNumber
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Fibonacci: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && fibonacciEnabled) {
+				var benchmark = new FibonacciBurst {
+					number = fibonacciNumber
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Fibonacci: {time} ticks");
+			}
+
+			if (burstEnabled && mandelbrotEnabled) {
+				var benchmark = new MandelbrotBurst {
+					width = 1920,
+					height = 1080,
+					iterations = mandelbrotIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Mandelbrot: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && mandelbrotEnabled) {
+				var benchmark = new MandelbrotGCC {
+					width = 1920,
+					height = 1080,
+					iterations = mandelbrotIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Mandelbrot: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && mandelbrotEnabled) {
+				var benchmark = new MandelbrotBurst {
+					width = 1920,
+					height = 1080,
+					iterations = mandelbrotIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Mandelbrot: {time} ticks");
+			}
+
+			if (burstEnabled && nbodyEnabled) {
+				var benchmark = new NBodyBurst {
+					advancements = nbodyAdvancements
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) NBody: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && nbodyEnabled) {
+				var benchmark = new NBodyGCC {
+					advancements = nbodyAdvancements
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) NBody: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && nbodyEnabled) {
+				var benchmark = new NBodyBurst {
+					advancements = nbodyAdvancements
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) NBody: {time} ticks");
+			}
+
+			if (burstEnabled && sieveOfEratosthenesEnabled) {
+				var benchmark = new SieveOfEratosthenesBurst {
+					iterations = sieveOfEratosthenesIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Sieve of Eratosthenes: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && sieveOfEratosthenesEnabled) {
+				var benchmark = new SieveOfEratosthenesGCC {
+					iterations = sieveOfEratosthenesIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Sieve of Eratosthenes: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && sieveOfEratosthenesEnabled) {
+				var benchmark = new SieveOfEratosthenesBurst {
+					iterations = sieveOfEratosthenesIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Sieve of Eratosthenes: {time} ticks");
+			}
+
+			if (burstEnabled && pixarRaytracerEnabled) {
+				var benchmark = new PixarRaytracerBurst {
+					width = 720,
+					height = 480,
+					samples = pixarRaytracerSamples
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Pixar Raytracer: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && pixarRaytracerEnabled) {
+				var benchmark = new PixarRaytracerGCC {
+					width = 720,
+					height = 480,
+					samples = pixarRaytracerSamples
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Pixar Raytracer: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && pixarRaytracerEnabled) {
+				var benchmark = new PixarRaytracerBurst {
+					width = 720,
+					height = 480,
+					samples = pixarRaytracerSamples
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Pixar Raytracer: {time} ticks");
+			}
+
+			if (burstEnabled && firefliesFlockingEnabled) {
+				var benchmark = new FirefliesFlockingBurst {
+					boids = 1000,
+					lifetime = firefliesFlockingLifetime
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Fireflies Flocking: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && firefliesFlockingEnabled) {
+				var benchmark = new FirefliesFlockingGCC {
+					boids = 1000,
+					lifetime = firefliesFlockingLifetime
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Fireflies Flocking: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && firefliesFlockingEnabled) {
+				var benchmark = new FirefliesFlockingBurst {
+					boids = 1000,
+					lifetime = firefliesFlockingLifetime
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Fireflies Flocking: {time} ticks");
+			}
+
+			if (burstEnabled && polynomialsEnabled) {
+				var benchmark = new PolynomialsBurst {
+					iterations = polynomialsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Polynomials: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && polynomialsEnabled) {
+				var benchmark = new PolynomialsGCC {
+					iterations = polynomialsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Polynomials: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && polynomialsEnabled) {
+				var benchmark = new PolynomialsBurst {
+					iterations = polynomialsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Polynomials: {time} ticks");
+			}
+
+			if (burstEnabled && particleKinematicsEnabled) {
+				var benchmark = new ParticleKinematicsBurst {
+					quantity = 1000,
+					iterations = particleKinematicsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Particle Kinematics: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && particleKinematicsEnabled) {
+				var benchmark = new ParticleKinematicsGCC {
+					quantity = 1000,
+					iterations = particleKinematicsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Particle Kinematics: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && particleKinematicsEnabled) {
+				var benchmark = new ParticleKinematicsBurst {
+					quantity = 1000,
+					iterations = particleKinematicsIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Particle Kinematics: {time} ticks");
+			}
+
+			if (burstEnabled && arcfourEnabled) {
+				var benchmark = new ArcfourBurst {
+					iterations = arcfourIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Arcfour: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && arcfourEnabled) {
+				var benchmark = new ArcfourGCC {
+					iterations = arcfourIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Arcfour: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && arcfourEnabled) {
+				var benchmark = new ArcfourBurst {
+					iterations = arcfourIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Arcfour: {time} ticks");
+			}
+
+			if (burstEnabled && seahashEnabled) {
+				var benchmark = new SeahashBurst {
+					iterations = seahashIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Seahash: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && seahashEnabled) {
+				var benchmark = new SeahashGCC {
+					iterations = seahashIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Seahash: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && seahashEnabled) {
+				var benchmark = new SeahashBurst {
+					iterations = seahashIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Seahash: {time} ticks");
+			}
+
+			if (burstEnabled && radixEnabled) {
+				var benchmark = new RadixBurst {
+					iterations = radixIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"(Burst) Radix: {time} ticks");
+			}
+
+			if (nativeLibraryEnabled && radixEnabled) {
+				var benchmark = new RadixGCC {
+					iterations = radixIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Run();
+
+				stopwatch.Restart();
+				benchmark.Run();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({nativeLibraryPrefixString}) Radix: {time} ticks");
+			}
+
+			if (scriptBackendEnabled && radixEnabled) {
+				var benchmark = new RadixBurst {
+					iterations = radixIterations
+				};
+
+				stopwatch.Stop();
+				benchmark.Execute();
+
+				stopwatch.Restart();
+				benchmark.Execute();
+
+				time = stopwatch.ElapsedTicks;
+
+				benchmarkResultStreamWriter.WriteLine($"({scriptingBackend}) Radix: {time} ticks");
+			}
+			benchmarkResultStreamWriter.Close();
 		}
 
-		if (nativeLibraryEnabled && fibonacciEnabled) {
-			var benchmark = new FibonacciGCC {
-				number = fibonacciNumber
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Fibonacci: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && fibonacciEnabled) {
-			var benchmark = new FibonacciBurst {
-				number = fibonacciNumber
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Fibonacci: {time} ticks");
-		}
-
-		if (burstEnabled && mandelbrotEnabled) {
-			var benchmark = new MandelbrotBurst {
-				width = 1920,
-				height = 1080,
-				iterations = mandelbrotIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Mandelbrot: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && mandelbrotEnabled) {
-			var benchmark = new MandelbrotGCC {
-				width = 1920,
-				height = 1080,
-				iterations = mandelbrotIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Mandelbrot: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && mandelbrotEnabled) {
-			var benchmark = new MandelbrotBurst {
-				width = 1920,
-				height = 1080,
-				iterations = mandelbrotIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Mandelbrot: {time} ticks");
-		}
-
-		if (burstEnabled && nbodyEnabled) {
-			var benchmark = new NBodyBurst {
-				advancements = nbodyAdvancements
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) NBody: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && nbodyEnabled) {
-			var benchmark = new NBodyGCC {
-				advancements = nbodyAdvancements
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) NBody: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && nbodyEnabled) {
-			var benchmark = new NBodyBurst {
-				advancements = nbodyAdvancements
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) NBody: {time} ticks");
-		}
-
-		if (burstEnabled && sieveOfEratosthenesEnabled) {
-			var benchmark = new SieveOfEratosthenesBurst {
-				iterations = sieveOfEratosthenesIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Sieve of Eratosthenes: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && sieveOfEratosthenesEnabled) {
-			var benchmark = new SieveOfEratosthenesGCC {
-				iterations = sieveOfEratosthenesIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Sieve of Eratosthenes: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && sieveOfEratosthenesEnabled) {
-			var benchmark = new SieveOfEratosthenesBurst {
-				iterations = sieveOfEratosthenesIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Sieve of Eratosthenes: {time} ticks");
-		}
-
-		if (burstEnabled && pixarRaytracerEnabled) {
-			var benchmark = new PixarRaytracerBurst {
-				width = 720,
-				height = 480,
-				samples = pixarRaytracerSamples
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Pixar Raytracer: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && pixarRaytracerEnabled) {
-			var benchmark = new PixarRaytracerGCC {
-				width = 720,
-				height = 480,
-				samples = pixarRaytracerSamples
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Pixar Raytracer: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && pixarRaytracerEnabled) {
-			var benchmark = new PixarRaytracerBurst {
-				width = 720,
-				height = 480,
-				samples = pixarRaytracerSamples
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Pixar Raytracer: {time} ticks");
-		}
-
-		if (burstEnabled && firefliesFlockingEnabled) {
-			var benchmark = new FirefliesFlockingBurst {
-				boids = 1000,
-				lifetime = firefliesFlockingLifetime
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Fireflies Flocking: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && firefliesFlockingEnabled) {
-			var benchmark = new FirefliesFlockingGCC {
-				boids = 1000,
-				lifetime = firefliesFlockingLifetime
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Fireflies Flocking: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && firefliesFlockingEnabled) {
-			var benchmark = new FirefliesFlockingBurst {
-				boids = 1000,
-				lifetime = firefliesFlockingLifetime
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Fireflies Flocking: {time} ticks");
-		}
-
-		if (burstEnabled && polynomialsEnabled) {
-			var benchmark = new PolynomialsBurst {
-				iterations = polynomialsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Polynomials: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && polynomialsEnabled) {
-			var benchmark = new PolynomialsGCC {
-				iterations = polynomialsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Polynomials: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && polynomialsEnabled) {
-			var benchmark = new PolynomialsBurst {
-				iterations = polynomialsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Polynomials: {time} ticks");
-		}
-
-		if (burstEnabled && particleKinematicsEnabled) {
-			var benchmark = new ParticleKinematicsBurst {
-				quantity = 1000,
-				iterations = particleKinematicsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Particle Kinematics: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && particleKinematicsEnabled) {
-			var benchmark = new ParticleKinematicsGCC {
-				quantity = 1000,
-				iterations = particleKinematicsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Particle Kinematics: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && particleKinematicsEnabled) {
-			var benchmark = new ParticleKinematicsBurst {
-				quantity = 1000,
-				iterations = particleKinematicsIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Particle Kinematics: {time} ticks");
-		}
-
-		if (burstEnabled && arcfourEnabled) {
-			var benchmark = new ArcfourBurst {
-				iterations = arcfourIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Arcfour: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && arcfourEnabled) {
-			var benchmark = new ArcfourGCC {
-				iterations = arcfourIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Arcfour: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && arcfourEnabled) {
-			var benchmark = new ArcfourBurst {
-				iterations = arcfourIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Arcfour: {time} ticks");
-		}
-
-		if (burstEnabled && seahashEnabled) {
-			var benchmark = new SeahashBurst {
-				iterations = seahashIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Seahash: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && seahashEnabled) {
-			var benchmark = new SeahashGCC {
-				iterations = seahashIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Seahash: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && seahashEnabled) {
-			var benchmark = new SeahashBurst {
-				iterations = seahashIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Seahash: {time} ticks");
-		}
-
-		if (burstEnabled && radixEnabled) {
-			var benchmark = new RadixBurst {
-				iterations = radixIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"(Burst) Radix: {time} ticks");
-		}
-
-		if (nativeLibraryEnabled && radixEnabled) {
-			var benchmark = new RadixGCC {
-				iterations = radixIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Run();
-
-			stopwatch.Restart();
-			benchmark.Run();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({nativeLibraryPrefixString}) Radix: {time} ticks");
-		}
-
-		if (scriptBackendEnabled && radixEnabled) {
-			var benchmark = new RadixBurst {
-				iterations = radixIterations
-			};
-
-			stopwatch.Stop();
-			benchmark.Execute();
-
-			stopwatch.Restart();
-			benchmark.Execute();
-
-			time = stopwatch.ElapsedTicks;
-
-			stringBuilder.AppendLine($"({scriptingBackend}) Radix: {time} ticks");
-		}
-		
-		stringBuilder.AppendLine();
-		File.WriteAllText($"{Application.persistentDataPath}/Benchmark_results.txt", stringBuilder.ToString());
 		Application.Quit();
 
 #if UNITY_EDITOR
