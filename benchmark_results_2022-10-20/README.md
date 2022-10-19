@@ -2,8 +2,8 @@
 
 ## Software versions and environment
 Burst 1.6.6<br/>
-GCC 11.2.0<br/>
-Clang (LLVM 14.0.0)<br/>
+GCC 12.2.0<br/>
+Clang (LLVM 15.0.2)<br/>
 IL2CPP and Mono JIT (Unity 2021.3.11f1)<br/>
 RyuJIT (.NET 6.0.10)
 
