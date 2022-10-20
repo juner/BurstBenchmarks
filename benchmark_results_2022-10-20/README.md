@@ -7,7 +7,7 @@ Clang (LLVM 15.0.2)<br/>
 IL2CPP and Mono JIT (Unity 2021.3.11f1)<br/>
 RyuJIT (.NET 6.0.10)
 
-C code compiled with all possible optimizations using `-DNDEBUG -O3 -march=x86-64-v3` compiler options. Benchmarks were done on Windows 10 w/ Ryzen 5 1600 using standalone build. Mono JIT and RyuJIT are included for comparison.
+C code compiled using `-DNDEBUG -O3 -march=x86-64-v3` compiler options. Benchmarks were done on Windows 10 w/ Ryzen 5 1600 using standalone build. Mono JIT and RyuJIT are included for comparison.
 
 ## Integer math
 
