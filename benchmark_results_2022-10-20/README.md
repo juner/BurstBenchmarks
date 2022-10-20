@@ -9,6 +9,18 @@ RyuJIT (.NET 6.0.10)
 
 C code compiled using `-DNDEBUG -O3 -march=x86-64-v3` compiler options. Benchmarks were done on Windows 10 w/ Ryzen 5 1600 using standalone build. Mono JIT and RyuJIT are included for comparison.
 
+The bar legend items are as follows:
+<ul>
+  <li><strong>GCC:</strong> The C Library benchmarks compiled with the GCC compiler and executed using a C# application through the .NET 6 Runtime.</li>
+  <li><strong>Clang:</strong> The C Library benchmarks compiled with the Clang compiler and executed using a C# application through the .NET 6 Runtime.</li>
+  <li><strong>Burst:</strong> The C# benchmarks compiled with the Burst compiler and executed with the Unity runtime.</li>
+  <li><strong>GCC - Unity:</strong> The C Library benchmarks compiled with the GCC compiler and executed with the Unity runtime.</li>
+  <li><strong>Clang - Unity:</strong> The C Library benchmarks compiled with the Clang compiler and executed with the Unity runtime.</li>
+  <li><strong>IL2CPP:</strong> The C# benchmarks executed with the Unity runtime with the scripting backend set to "IL2CPP".</li>
+  <li><strong>Mono JIT:</strong> The C# benchmarks executed with the Unity runtime with the scripting backend set to "Mono".</li>
+  <li><strong>Ryu JIT:</strong> The C# benchmarks executed using a C# application through the .NET 6 Runtime.</li>
+</ul>
+
 ## Integer math
 
 <p align="center"> 
